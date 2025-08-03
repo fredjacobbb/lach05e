@@ -1,8 +1,10 @@
 package utils
 
 import (
-	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/pterm/pterm"
 )
 
 type Request struct {
@@ -17,6 +19,7 @@ type Request struct {
 func RequestAssault(r Request) {
 	client := &http.Client{
 		Transport: &http.Transport{},
+		Timeout:   5 * time.Second,
 	}
 
 	req, err := http.NewRequest(r.Method, "https://"+r.Url+r.Payload, nil)
@@ -27,11 +30,15 @@ func RequestAssault(r Request) {
 	req.Header.Set("User-Agent", "How are You ?")
 	req.Header.Set("Cookie", "Hey ok cookie")
 
-	fmt.Println(req)
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return
 	}
-	fmt.Println(resp.Header)
+	if resp.StatusCode != 200 {
+		pterm.FgRed.Printf("%s %s\n", resp.Status, r.Url+pterm.White(r.Payload))
+		return
+	}
+
+	pterm.FgGreen.Printf("%s %s\n", resp.Status, r.Url+pterm.White(r.Payload))
+
 }
