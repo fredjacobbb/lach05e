@@ -14,7 +14,6 @@ var payloadsPath string
 var method string
 var ua string
 var cookie string
-var payload string
 
 var updatePayloadsURL = "https://github.com/danielmiessler/SecLists"
 

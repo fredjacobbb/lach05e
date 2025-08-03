@@ -6,27 +6,16 @@ import (
 	"lach05e/pkg/utils"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
+
+var payload string
 
 // sqliCmd represents the sqli command
 var sqliCmd = &cobra.Command{
 	Use: "sqli",
 	Run: func(cmd *cobra.Command, args []string) {
-		req := utils.Request{
-			Url:          target,
-			Method:       method,
-			Ua:           ua,
-			PayloadsPath: payloadsPath,
-			Cookie:       cookie,
-			Payload:      payload,
-		}
-		if req.PayloadsPath == "" {
-			fmt.Println("Oops you've forgotten the Payloads Path !")
-			return
-		}
 		start_injection()
 	},
 }
@@ -36,14 +25,25 @@ func start_injection() {
 	if err != nil {
 		fmt.Println("Erreur : ", err)
 	}
+	if payloadsPath == "" {
+		fmt.Println("Oops you've forgotten the Payloads Path !")
+		return
+	}
 
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		payload := strings.TrimSpace(scanner.Text())
-		time.Sleep(1 * time.Second)
-		fmt.Println(payload)
+		payload = strings.TrimSpace(scanner.Text())
+		req := utils.Request{
+			Url:          target,
+			Method:       method,
+			Ua:           ua,
+			PayloadsPath: payloadsPath,
+			Cookie:       cookie,
+			Payload:      payload,
+		}
+		utils.RequestAssault(req)
 	}
 
 }
