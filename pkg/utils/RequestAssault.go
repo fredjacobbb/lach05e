@@ -18,6 +18,7 @@ type Request struct {
 	Cookie       []string
 	Payload      string
 	Header       []string
+	Data         []string
 }
 
 func RequestAssault(r Request) {
@@ -26,11 +27,17 @@ func RequestAssault(r Request) {
 		Timeout:   5 * time.Second,
 	}
 
-	req, err := http.NewRequest(r.Method, "https://"+r.Url+r.Payload, nil)
+	if strings.EqualFold("POST", r.Method) {
+		fmt.Println("ok pas mmee casse ! valid ")
+	}
+
+	req, err := http.NewRequest(r.Method, "https://"+r.Url+"/"+r.Payload, nil)
 	if err != nil {
 		fmt.Printf("Domain is down or inexist !\n")
 		os.Exit(1)
 	}
+
+	fmt.Println(req)
 
 	if r.Ua == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:39.0) Gecko/20100101 Firefox/39.0")
@@ -62,7 +69,7 @@ func RequestAssault(r Request) {
 		os.Exit(1)
 	}
 	if resp.StatusCode != 200 {
-		pterm.Printf("%s %s\n", pterm.NewStyle(pterm.BgRed, pterm.FgWhite).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint("https://"+strings.TrimSpace(r.Url)+strings.TrimSpace(r.Payload)))
+		pterm.Printf("%s %s\n", pterm.NewStyle(pterm.BgRed, pterm.FgWhite).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint("https://"+strings.TrimSpace(r.Url)+"/"+strings.TrimSpace(r.Payload)))
 		return
 	}
 
