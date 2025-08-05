@@ -13,7 +13,8 @@ var target string
 var payloadsPath string
 var method string
 var ua string
-var cookie string
+var cookie []string
+var header []string
 
 var updatePayloadsURL = "https://github.com/danielmiessler/SecLists"
 
@@ -45,4 +46,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&target, "target", "u", "", "Target")
 	rootCmd.PersistentFlags().StringVarP(&payloadsPath, "payloadsPath", "p", "", "PayloadsPath")
 	rootCmd.PersistentFlags().StringVarP(&method, "method", "X", "", "Method")
+	rootCmd.PersistentFlags().StringSliceVarP(&header, "header", "H", []string{}, "Header")
+	rootCmd.PersistentFlags().StringSliceVarP(&cookie, "cookie", "C", []string{}, "Cookie")
 }

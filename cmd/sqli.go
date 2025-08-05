@@ -42,6 +42,7 @@ func start_injection() {
 			PayloadsPath: payloadsPath,
 			Cookie:       cookie,
 			Payload:      payload,
+			Header:       header,
 		}
 		utils.RequestAssault(req)
 	}
