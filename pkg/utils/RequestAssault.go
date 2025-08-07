@@ -28,7 +28,10 @@ func RequestAssault(r Request) {
 	}
 
 	if strings.EqualFold("POST", r.Method) {
-		fmt.Println("ok pas mmee casse ! valid ")
+		r.Payload = ""
+		for _, d := range r.Data {
+			fmt.Println(d)
+		}
 	}
 
 	req, err := http.NewRequest(r.Method, "https://"+r.Url+"/"+r.Payload, nil)
@@ -37,19 +40,13 @@ func RequestAssault(r Request) {
 		os.Exit(1)
 	}
 
-	fmt.Println(req)
+	for _, c := range r.Cookie {
+		req.Header.Add("Cookie", c)
+		fmt.Println(req)
+	}
 
 	if r.Ua == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:39.0) Gecko/20100101 Firefox/39.0")
-	}
-
-	for _, c := range r.Cookie {
-		parts := strings.SplitN(c, "=", 2)
-		if len(parts) != 2 {
-			pterm.Warning.Printfln("Format error ! %s", c)
-			continue
-		}
-		req.Header.Set(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 	}
 
 	for _, h := range r.Header {
