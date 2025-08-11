@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -18,23 +19,28 @@ type Request struct {
 	Cookie       []string
 	Payload      string
 	Header       []string
-	Data         []string
+	Data         string
 }
 
+var body io.Reader
+
 func RequestAssault(r Request) {
+
 	client := &http.Client{
 		Transport: &http.Transport{},
 		Timeout:   5 * time.Second,
 	}
 
-	if strings.EqualFold("POST", r.Method) {
+	if r.Method == "POST" {
+		r.Data = r.Payload
+		body = strings.NewReader(r.Data)
+		r.Method = "POST"
 		r.Payload = ""
-		for _, d := range r.Data {
-			fmt.Println(d)
-		}
+	} else {
+		r.Method = "GET"
 	}
 
-	req, err := http.NewRequest(r.Method, "https://"+r.Url+"/"+r.Payload, nil)
+	req, err := http.NewRequest(r.Method, r.Url+"/"+r.Payload, body)
 	if err != nil {
 		fmt.Printf("Domain is down or inexist !\n")
 		os.Exit(1)
@@ -42,8 +48,11 @@ func RequestAssault(r Request) {
 
 	for _, c := range r.Cookie {
 		req.Header.Add("Cookie", c)
-		fmt.Println(req)
 	}
+
+	// POST DATA
+
+	fmt.Println(io.ReadAll(req.Body))
 
 	if r.Ua == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:39.0) Gecko/20100101 Firefox/39.0")
@@ -58,18 +67,16 @@ func RequestAssault(r Request) {
 		req.Header.Add(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 	}
 
-	fmt.Println(req.Header)
-
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Domain is down or inexist ! \n")
 		os.Exit(1)
 	}
 	if resp.StatusCode != 200 {
-		pterm.Printf("%s %s\n", pterm.NewStyle(pterm.BgRed, pterm.FgWhite).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint("https://"+strings.TrimSpace(r.Url)+"/"+strings.TrimSpace(r.Payload)))
+		pterm.Printf("%s %s\n", pterm.NewStyle(pterm.BgRed, pterm.FgWhite).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint(strings.TrimSpace(r.Url)+"/"+strings.TrimSpace(r.Payload)))
 		return
 	}
 
-	pterm.FgGreen.Printf("%s %s\n", pterm.NewStyle(pterm.BgGreen, pterm.FgDarkGray).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint("https://"+strings.TrimSpace(r.Url)+strings.TrimSpace(r.Payload)))
+	pterm.FgGreen.Printf("%s %s\n", pterm.NewStyle(pterm.BgGreen, pterm.FgDarkGray).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint(strings.TrimSpace(r.Url)+strings.TrimSpace(r.Payload)))
 
 }
