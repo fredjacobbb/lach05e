@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strings"
 	"time"
@@ -32,12 +33,9 @@ func RequestAssault(r Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Data = r.Payload
-		body = strings.NewReader(r.Data)
-		r.Method = "POST"
+		r.Data = strings.Replace(r.Data, "FUZZ", r.Payload, 1)
 		r.Payload = ""
-	} else {
-		r.Method = "GET"
+		body = strings.NewReader(r.Data)
 	}
 
 	req, err := http.NewRequest(r.Method, r.Url+"/"+r.Payload, body)
@@ -50,9 +48,15 @@ func RequestAssault(r Request) {
 		req.Header.Add("Cookie", c)
 	}
 
-	// POST DATA
+	req.Body = io.NopCloser(body)
 
-	fmt.Println(io.ReadAll(req.Body))
+	dump, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(dump))
 
 	if r.Ua == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:39.0) Gecko/20100101 Firefox/39.0")
