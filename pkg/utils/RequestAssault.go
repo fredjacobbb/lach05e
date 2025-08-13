@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"strings"
 	"time"
@@ -24,6 +23,8 @@ type Request struct {
 }
 
 var body io.Reader
+var PayloadsLines uint
+var CurrentPayloadLine uint
 
 func RequestAssault(r Request) {
 
@@ -50,13 +51,11 @@ func RequestAssault(r Request) {
 
 	req.Body = io.NopCloser(body)
 
-	dump, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(dump))
+	// dump, err := httputil.DumpRequest(req, true)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
 	if r.Ua == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:39.0) Gecko/20100101 Firefox/39.0")
@@ -80,6 +79,9 @@ func RequestAssault(r Request) {
 		pterm.Printf("%s %s\n", pterm.NewStyle(pterm.BgRed, pterm.FgWhite).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint(strings.TrimSpace(r.Url)+"/"+strings.TrimSpace(r.Payload)))
 		return
 	}
+
+	fmt.Printf("\n\nRequest : %d / %d \n", CurrentPayloadLine, PayloadsLines)
+	// fmt.Println(string(dump))
 
 	pterm.FgGreen.Printf("%s %s\n", pterm.NewStyle(pterm.BgGreen, pterm.FgDarkGray).Sprint(resp.Status), pterm.NewStyle(pterm.FgWhite).Sprint(strings.TrimSpace(r.Url)+strings.TrimSpace(r.Payload)))
 

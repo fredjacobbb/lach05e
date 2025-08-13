@@ -3,9 +3,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"lach05e/pkg/utils"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/spf13/cobra"
 )
@@ -21,6 +23,7 @@ var sqliCmd = &cobra.Command{
 }
 
 func start_injection() {
+
 	file, err := os.Open(payloadsPath)
 	if err != nil {
 		fmt.Println("Erreur : ", err)
@@ -32,8 +35,22 @@ func start_injection() {
 
 	defer file.Close()
 
+	scannerThread := bufio.NewScanner(file)
+
+	for scannerThread.Scan() {
+		utils.PayloadsLines++
+	}
+
+	_, err = file.Seek(0, io.SeekStart)
+
 	scanner := bufio.NewScanner(file)
+
+	sem := make(chan struct{}, threads)
+	var wg sync.WaitGroup
+
 	for scanner.Scan() {
+		utils.CurrentPayloadLine++
+
 		payload = strings.TrimSpace(scanner.Text())
 		req := utils.Request{
 			Url:          target,
@@ -45,8 +62,17 @@ func start_injection() {
 			Header:       header,
 			Data:         data,
 		}
-		utils.RequestAssault(req)
+
+		sem <- struct{}{}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			utils.RequestAssault(req)
+		}()
 	}
+
+	wg.Wait()
 
 }
 
