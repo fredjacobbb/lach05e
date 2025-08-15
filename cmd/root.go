@@ -16,7 +16,7 @@ var ua string
 var cookie []string
 var header []string
 var data string
-var threads int
+var bufferSize int
 
 var updatePayloadsURL = "https://github.com/danielmiessler/SecLists"
 
@@ -51,5 +51,5 @@ func init() {
 	rootCmd.PersistentFlags().StringSliceVarP(&header, "header", "H", []string{}, "Header")
 	rootCmd.PersistentFlags().StringSliceVarP(&cookie, "cookie", "C", []string{}, "Cookie")
 	rootCmd.PersistentFlags().StringVarP(&data, "data", "d", "", "Data")
-	rootCmd.PersistentFlags().IntVarP(&threads, "threads", "T", 1, "Threads")
+	rootCmd.PersistentFlags().IntVarP(&bufferSize, "threads", "T", 1, "Threads")
 }

@@ -24,7 +24,7 @@ type Request struct {
 
 var body io.Reader
 var PayloadsLines uint
-var CurrentPayloadLine uint
+var CurrentPayloadLine uint = 1
 
 func RequestAssault(r Request) {
 

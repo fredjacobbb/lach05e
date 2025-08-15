@@ -29,7 +29,7 @@ func start_injection() {
 		fmt.Println("Erreur : ", err)
 	}
 	if payloadsPath == "" {
-		fmt.Println("Oops you've forgotten the Payloads Path !")
+		fmt.Println("No payload path given ! We sending Request like that !")
 		return
 	}
 
@@ -45,12 +45,10 @@ func start_injection() {
 
 	scanner := bufio.NewScanner(file)
 
-	sem := make(chan struct{}, threads)
+	sem := make(chan struct{}, bufferSize)
 	var wg sync.WaitGroup
 
 	for scanner.Scan() {
-		utils.CurrentPayloadLine++
-
 		payload = strings.TrimSpace(scanner.Text())
 		req := utils.Request{
 			Url:          target,
@@ -69,6 +67,7 @@ func start_injection() {
 			defer wg.Done()
 			defer func() { <-sem }()
 			utils.RequestAssault(req)
+			utils.CurrentPayloadLine++
 		}()
 	}
 
