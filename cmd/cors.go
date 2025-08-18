@@ -10,7 +10,7 @@ import (
 var corsCmd = &cobra.Command{
 	Use: "cors",
 	Run: func(cmd *cobra.Command, args []string) {
-		req := utils.Request{
+		req := &utils.Request{
 			Url:    target,
 			Method: method,
 			Ua:     ua,

@@ -50,7 +50,7 @@ func start_injection() {
 
 	for scanner.Scan() {
 		payload = strings.TrimSpace(scanner.Text())
-		req := utils.Request{
+		req := &utils.Request{
 			Url:          target,
 			Method:       method,
 			Ua:           ua,

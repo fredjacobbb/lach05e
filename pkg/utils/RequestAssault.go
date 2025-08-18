@@ -26,7 +26,7 @@ var body io.Reader
 var PayloadsLines uint
 var CurrentPayloadLine uint = 1
 
-func RequestAssault(r Request) {
+func RequestAssault(r *Request) {
 
 	client := &http.Client{
 		Transport: &http.Transport{},
